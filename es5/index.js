@@ -1,0 +1,25 @@
+const silly20 = require('./silly20')
+const silly19 = require('./silly19')
+const silly18 = require('./silly18')
+const silly17 = require('./silly17')
+const silly16 = require('./silly16')
+const silly15 = require('./silly15')
+const silly14 = require('./silly14')
+const silly13 = require('./silly13')
+const silly12 = require('./silly12')
+const silly11 = require('./silly11')
+const silly10 = require('./silly10')
+const silly9 = require('./silly9')
+const silly8 = require('./silly8')
+const silly7 = require('./silly7')
+const silly6 = require('./silly6')
+const silly5 = require('./silly5')
+const silly4 = require('./silly4')
+const silly3 = require('./silly3')
+const silly2 = require('./silly2')
+const silly1 = require('./silly1')
+const silly0 = require('./silly0')
+
+module.exports = {
+	silly20, 	silly19, 	silly18, 	silly17, 	silly16, 	silly15, 	silly14, 	silly13, 	silly12, 	silly11, 	silly10, 	silly9, 	silly8, 	silly7, 	silly6, 	silly5, 	silly4, 	silly3, 	silly2, 	silly1, 	silly0, 
+}

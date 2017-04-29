@@ -1,0 +1,25 @@
+import silly20 from './silly20'
+import silly19 from './silly19'
+import silly18 from './silly18'
+import silly17 from './silly17'
+import silly16 from './silly16'
+import silly15 from './silly15'
+import silly14 from './silly14'
+import silly13 from './silly13'
+import silly12 from './silly12'
+import silly11 from './silly11'
+import silly10 from './silly10'
+import silly9 from './silly9'
+import silly8 from './silly8'
+import silly7 from './silly7'
+import silly6 from './silly6'
+import silly5 from './silly5'
+import silly4 from './silly4'
+import silly3 from './silly3'
+import silly2 from './silly2'
+import silly1 from './silly1'
+import silly0 from './silly0'
+
+module.exports = {
+	silly20, 	silly19, 	silly18, 	silly17, 	silly16, 	silly15, 	silly14, 	silly13, 	silly12, 	silly11, 	silly10, 	silly9, 	silly8, 	silly7, 	silly6, 	silly5, 	silly4, 	silly3, 	silly2, 	silly1, 	silly0, 
+}
