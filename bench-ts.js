@@ -1,16 +1,10 @@
+const Bench = require('bench-chain')
 const {fus, webTS, roll} = require('./configs')
-const Record = require('../../../../../fluents/package/bench-chain')
-
-// web()
-// fus()
-// roll()
 
 const name = 'ts'
-const {record} = Record.suite(__dirname, false, `./results-${name}.json`)
+const bench = Bench.init(__dirname, `./results-${name}.json`)
 
-// webTS(name)
-
-record
+bench
   .tags('metal')
   .addAsync('fusebox - ' + name, async done => {
     const eh = await fus(name)
@@ -28,5 +22,3 @@ record
     return eh
   })
   .run()
-
-// record.setup().echo()
