@@ -1,4 +1,4 @@
-const Bench = require('bench-chain')
+const Bench = require('./.bench-chain')
 const {fus, web, roll} = require('./configs')
 
 module.exports = function(name, tags = '') {
@@ -8,9 +8,8 @@ module.exports = function(name, tags = '') {
 
   // could also do
   // `done => fus(name).then(done)`
-  return Bench
-    .init(__dirname, `./results-${name}.json`)
-    .tags('metal,factory,' + tags)
+  return Bench.init(__dirname, `./results-${name}.json`)
+    .tags('metal,factory,fuse-beta8,fuse-beta9' + tags)
     .addAsync('fusebox - ' + name, async done => {
       const eh = await fus(name)
       done(eh)

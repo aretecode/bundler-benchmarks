@@ -1,10 +1,9 @@
-const Bench = require('bench-chain')
+const Bench = require('./.bench-chain')
 const {fus, webTS, roll} = require('./configs')
 
 const name = 'ts'
-const bench = Bench.init(__dirname, `./results-${name}.json`)
 
-bench
+Bench.init(__dirname, `./results-${name}.json`)
   .tags('metal')
   .addAsync('fusebox - ' + name, async done => {
     const eh = await fus(name)

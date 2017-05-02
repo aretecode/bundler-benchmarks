@@ -1,5 +1,5 @@
 const {fus, web, roll} = require('./configs')
-const Record = require('bench-chain')
+const Record = require('./.bench-chain')
 
 const name = 'dynamicrequire'
 const record = Record.init(__dirname, `./results-${name}.json`)

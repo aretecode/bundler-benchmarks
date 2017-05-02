@@ -1,23 +1,48 @@
 const {resolve} = require('path')
 const log = require('fliplog')
+const fun = require('funwithflags')
 
 const res = rel => resolve(__dirname, rel)
-const debug = false
+const {debug} = fun(process.argv.slice(2), {
+  default: {
+    debug: false,
+  },
+  boolean: 'debug',
+})
 
-function roll(name = 'src', out = 'dist') {
+// used to track the cache for subsequent bundles
+var cache
+
+function roll(name = 'src', out = 'dist', target = 'cjs') {
   const src = res(`./${name}/index.js`)
+  const dist = out + '-' + name
   const rollup = require('rollup')
   const nodeResolve = require('rollup-plugin-node-resolve')
   const commonjs = require('rollup-plugin-commonjs')
+  const json = require('rollup-plugin-json')
 
   const config = {
     entry: src,
-    dest: res(`./${out}/eh-rollup.js`),
+    dest: res(`./${dist}/eh-rollup.js`),
     sourceMap: false,
-    format: 'cjs',
+    format: target,
+    cache,
+    onwarn(message) {
+      // ignore
+    },
     plugins: [
+      json({
+        // All JSON files will be parsed by default,
+        // but you can also specifically include/exclude files
+        include: 'node_modules/**', // Default: undefined
+        preferConst: true, // Default: false
+      }),
       nodeResolve({
         jsnext: true,
+        main: true,
+        module: true,
+        extensions: ['.js', '.json'], // Default: ['.js']
+        preferBuiltins: true,
       }),
       commonjs({
         include: '**/**',
@@ -25,28 +50,35 @@ function roll(name = 'src', out = 'dist') {
     ],
   }
 
-  return rollup
-    .rollup(config)
-    .then(bundle => Promise.resolve(bundle.write(config)))
+  if (target !== 'cjs') {
+    config.moduleName = name
+  }
+
+  return rollup.rollup(config).then(bundle => {
+    // cache = bundle
+    return Promise.resolve(bundle.write(config))
+  })
 }
 
-function fus(folder = 'src', out = 'dist') {
-  const src = `${folder}/index.js`
-  const {FuseBox} = require('fuse-box')
+function fus(folder = 'src', out = 'dist', externals = false) {
+  let src = `${folder}/index.js`
+  const {FuseBox, JSONPlugin} = require('fuse-box')
+
   // log.quick(FuseBox, require.resolve('fuse-box'))
-  const name = 'eh-fuse'
+  const name = folder + '-fuse'
   const config = {
     log: debug,
     debug,
     homeDir: __dirname,
     cache: true,
-    output: out + '/$name.js',
+    output: out + '-' + folder + '/$name.js',
+    plugins: [JSONPlugin()],
   }
 
   const fuse = FuseBox.init(config)
 
-  fuse.bundle(name + '.js')
-    .instructions(src)
+  if (externals === true) src = `[${src}]`
+  fuse.bundle(name + '.js').instructions(src)
 
   return fuse.run()
 }
@@ -59,27 +91,33 @@ function failed(errors, stats) {
   }
   const jsonStats = stats.toJson()
   if (jsonStats.errors.length) {
-    jsonStats.errors.map((error) => console.error(error))
+    jsonStats.errors.map(error => console.error(error))
     return true
   }
   return false
 }
 
-function web(name = 'src', out = 'dist') {
+function web(name = 'src', out = 'dist', target = 'node', externals = false) {
+  const nodeExternals = require('webpack-node-externals')
   const src = res(`./${name}/index.js`)
   const webpack = require('webpack')
   const config = {
     cache: true,
     context: __dirname,
-    target: 'node',
+    target,
     entry: {
       eh: src,
     },
     output: {
-      path: res('./' + out),
+      path: res('./' + out + '-' + name),
       filename: '[name]-webpack.js',
     },
   }
+
+  if (target === 'node' && externals === true) {
+    config.externals = [nodeExternals()]
+  }
+
   return new Promise((presolve, preject) => {
     const compiler = webpack(config)
 
@@ -88,11 +126,16 @@ function web(name = 'src', out = 'dist') {
       if (failed(error, stats)) return preject(error)
 
       // eslint-disable-next-line no-console
-      // console.log(stats.toString({
-      //   colors: true,
-      //   chunks: false,
-      //   children: false,
-      // }))
+      if (debug === true) {
+        console.log(
+          stats.toString({
+            colors: true,
+            chunks: false,
+            children: false,
+          })
+        )
+      }
+
       return presolve(stats)
     })
   })
@@ -105,15 +148,15 @@ function webTS(name = 'src', out = 'dist') {
     cache: true,
     context: __dirname,
     target: 'node',
-        // Currently we need to add '.ts' to the resolve.extensions array.
+    // Currently we need to add '.ts' to the resolve.extensions array.
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
     },
 
-      // Source maps support ('inline-source-map' also works)
+    // Source maps support ('inline-source-map' also works)
     // devtool: 'source-map',
 
-        // Add the loader for .ts files.
+    // Add the loader for .ts files.
     module: {
       loaders: [
         {
@@ -127,7 +170,7 @@ function webTS(name = 'src', out = 'dist') {
       eh: src,
     },
     output: {
-      path: res('./' + out),
+      path: res('./' + name + '-' + out),
       filename: '[name]-webpack.js',
     },
   }
@@ -149,6 +192,5 @@ function webTS(name = 'src', out = 'dist') {
     })
   })
 }
-
 
 module.exports = {web, roll, fus, webTS}
