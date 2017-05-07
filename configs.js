@@ -27,7 +27,8 @@ function roll(name = 'src', out = 'dist', target = 'cjs') {
     dest: res(`./${dist}/eh-rollup.js`),
     sourceMap: false,
     format: target,
-    cache,
+    // @NOTE if you cache with externals, they are not respected.
+    // cache,
     onwarn(message) {
       // ignore
     },
