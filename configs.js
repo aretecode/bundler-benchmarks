@@ -55,7 +55,7 @@ function roll(name = 'src', out = 'dist', target = 'cjs') {
   }
 
   return rollup.rollup(config).then(bundle => {
-    // cache = bundle
+    cache = bundle
     return Promise.resolve(bundle.write(config))
   })
 }

@@ -8,8 +8,8 @@ module.exports = function(name, tags = '') {
 
   // could also do
   // `done => fus(name).then(done)`
-  return Bench.init(__dirname, `./results-${name}.json`)
-    .tags('metal,factory,fuse-beta8,fuse-beta9' + tags)
+  return Bench.init(__dirname, `./results-${name}10.json`)
+    .tags('metal,factory,fuse-beta8,fuse-beta9,fuse-box10' + tags)
     .addAsync('fusebox - ' + name, async done => {
       const eh = await fus(name)
       done(eh)
