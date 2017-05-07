@@ -1,1 +1,1 @@
-module.exports = require('../../chain/bench-chain')
+module.exports = require('bench-chain')

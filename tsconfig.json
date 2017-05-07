@@ -1,0 +1,27 @@
+{
+  "include": [
+    "ts/**"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "node_modules/**"
+  ],
+  "compilerOptions": {
+    "target": "es6",
+    "outDir": "dist",
+    "module": "commonjs",
+    "isolatedModules": false,
+    "jsx": "react",
+    "removeComments": false,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "pretty": true,
+    "noImplicitUseStrict": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "preserveConstEnums": true
+  },
+  "compileOnSave": false,
+  "buildOnSave": false
+}

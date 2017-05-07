@@ -1,6 +1,7 @@
 const {resolve} = require('path')
 const log = require('fliplog')
 const fun = require('funwithflags')
+log.registerCatch()
 
 const res = rel => resolve(__dirname, rel)
 const {debug} = fun(process.argv.slice(2), {
@@ -30,16 +31,17 @@ function roll(name = 'src', out = 'dist', target = 'cjs') {
     onwarn(message) {
       // ignore
     },
+    external: ['fs', 'path', 'tty', 'child_process'],
     plugins: [
       json({
         // All JSON files will be parsed by default,
         // but you can also specifically include/exclude files
-        include: 'node_modules/**', // Default: undefined
+        include: '**/**', // Default: undefined
         preferConst: true, // Default: false
       }),
       nodeResolve({
-        jsnext: true,
         main: true,
+        jsnext: true,
         module: true,
         extensions: ['.js', '.json'], // Default: ['.js']
         preferBuiltins: true,
@@ -62,7 +64,7 @@ function roll(name = 'src', out = 'dist', target = 'cjs') {
 
 function fus(folder = 'src', out = 'dist', externals = false) {
   let src = `${folder}/index.js`
-  const {FuseBox, JSONPlugin} = require('fuse-box')
+  const {FuseBox, JSONPlugin, PlainJSPlugin} = require('fuse-box')
 
   // log.quick(FuseBox, require.resolve('fuse-box'))
   const name = folder + '-fuse'
@@ -72,7 +74,7 @@ function fus(folder = 'src', out = 'dist', externals = false) {
     homeDir: __dirname,
     cache: true,
     output: out + '-' + folder + '/$name.js',
-    plugins: [JSONPlugin()],
+    plugins: [JSONPlugin(), PlainJSPlugin()],
   }
 
   const fuse = FuseBox.init(config)
