@@ -3,7 +3,7 @@ const {fus, webTS, roll} = require('./configs')
 
 const name = 'ts'
 
-Bench.init(__dirname, `./results-${name}.json`)
+Bench.init(__dirname, `./benchresults/results-${name}.json`)
   .tags('metal')
   .addAsync('fusebox - ' + name, async done => {
     const eh = await fus(name)
