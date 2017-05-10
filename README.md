@@ -3,6 +3,7 @@
 git clone git@github.com:aretecode/bundler-benchmarks.git && cd bundler-benchmarks && npm i && node bench
 ```
 
+(if you have issues with node_gyp) `npm install --no-optional`, if that does not work, `npm install --no-optional --force`
 
 # [faker](./faker.js)
 
