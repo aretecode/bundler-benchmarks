@@ -4,17 +4,22 @@ const fun = require('funwithflags')
 log.registerCatch()
 
 const res = rel => resolve(__dirname, rel)
-const {debug} = fun(process.argv.slice(2), {
+const {debug, unrequire} = fun(process.argv.slice(2), {
   default: {
     debug: false,
+    unrequire: false,
   },
-  boolean: 'debug',
+  boolean: ['debug', 'unrequire'],
 })
+
+if (unrequire) log.bold('using unrequire!').echo()
 
 // used to track the cache for subsequent bundles
 var cache
 
 function roll(name = 'src', out = 'dist', target = 'cjs') {
+  if (unrequire) delete require.cache[require.resolve('rollup')]
+
   const src = res(`./${name}/index.js`)
   const dist = out + '-' + name
   const rollup = require('rollup')
@@ -32,7 +37,8 @@ function roll(name = 'src', out = 'dist', target = 'cjs') {
     onwarn(message) {
       // ignore
     },
-    external: ['fs', 'path', 'tty', 'child_process'],
+    treeshake: false,
+    external: ['fs', 'path', 'tty', 'child_process', 'util'],
     plugins: [
       json({
         // All JSON files will be parsed by default,
@@ -61,13 +67,21 @@ function roll(name = 'src', out = 'dist', target = 'cjs') {
     cache = bundle
     return Promise.resolve(bundle.write(config))
   })
+
+  eval("console.log(" + rollup + ")")
 }
 
 function fus(folder = 'src', out = 'dist', externals = false) {
+  if (unrequire) {
+    delete require.cache[require.resolve('fuse-box')]
+    delete global.$fsbx
+    delete global.FUSEBOX
+    delete global.FuseBox
+    delete global.require
+  }
+
   let src = `${folder}/index.js`
   const {FuseBox, JSONPlugin, PlainJSPlugin} = require('fuse-box')
-
-  // log.quick(FuseBox, require.resolve('fuse-box'))
   const name = folder + '-fuse'
   const config = {
     log: debug,
@@ -75,15 +89,25 @@ function fus(folder = 'src', out = 'dist', externals = false) {
     homeDir: __dirname,
     cache: true,
     output: out + '-' + folder + '/$name.js',
+    // package: name,
+    // globals: { default: "*" },
     plugins: [JSONPlugin(), PlainJSPlugin()],
   }
 
   const fuse = FuseBox.init(config)
 
-  if (externals === true) src = `[${src}]`
+  if (externals === true) src = `> [${src}]`
   fuse.bundle(name + '.js').instructions(src)
 
   return fuse.run()
+  // eval("console.log(" + fuse + ")")
+
+  // @NOTE
+  //  makes no diff,
+  //  just to ensure the fusebundle is resolving properly
+  // return new Promise((presolve, preject) => {
+  //   return fuse.run().then(fresolved => presolve(fresolved))
+  // })
 }
 
 function failed(errors, stats) {
@@ -101,6 +125,8 @@ function failed(errors, stats) {
 }
 
 function web(name = 'src', out = 'dist', target = 'node', externals = false) {
+  if (unrequire) delete require.cache[require.resolve('webpack')]
+
   const nodeExternals = require('webpack-node-externals')
   const src = res(`./${name}/index.js`)
   const webpack = require('webpack')
@@ -142,10 +168,14 @@ function web(name = 'src', out = 'dist', target = 'node', externals = false) {
       return presolve(stats)
     })
   })
+
+  // eval("console.log(" + webpack + ")")
 }
 
 function webTS(name = 'src', out = 'dist') {
   const src = res(`./${name}/index.ts`)
+  if (unrequire) delete require.cache[require.resolve('webpack')]
+
   const webpack = require('webpack')
   const config = {
     cache: true,
@@ -194,6 +224,8 @@ function webTS(name = 'src', out = 'dist') {
       return presolve(stats)
     })
   })
+
+  // eval("console.log(" + webpack + ")")
 }
 
 module.exports = {web, roll, fus, webTS}
